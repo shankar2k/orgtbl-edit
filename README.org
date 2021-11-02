@@ -1,0 +1,55 @@
+* Org Table Edit
+** Summary
+
+This package provides the command ~orgtbl-edit~ for editing spreadsheets and
+text-delimited files as Org tables.
+
+** Installation
+
+This package can be cloned from GitHub via the following command:
+
+#+begin_src bash
+git clone https://github.com/shankar2k/orgtbl-edit.git
+#+end_src
+
+To start using it, place it somewhere in your Emacs load-path and add the line
+
+#+begin_src emacs-lisp
+(require orgtbl-edit)
+#+end_src
+
+in your ~.emacs.d/init.el~ file. Then run ~M-x orgtbl-edit~ to run it. 
+
+If you use ~use-package~, you can configure this as follows:
+
+#+begin_src emacs-lisp
+(setq orgtbl-edit-load-path "<path to orgtbl-edit dir>")
+(use-package orgtbl-edit
+  :load-path orgtbl-edit-load-path
+  :ensure nil
+#+end_src
+
+
+** Usage
+
+To use this command, simply invoke ~orgtbl-edit~ and then select a spreadsheet
+(e.g., xlsx, odt) or text-delimited file (e.g., csv, tsv) to edit as an Org
+table.
+
+If the file provided is a text-delimited file, then the field separator is
+automatically detected after skipping forward ~orgtbl-edit-header-lines~ from
+the beginning of the buffer. The field separator can be a tab, comma, or
+space.
+
+The file is opened in a special buffer that has ~orgtbl-mode~ enabled, so that
+all ~org-table-~ and ~orgtbl-~ commands work in the buffer. When the buffer is
+saved, the table is exported back to the original spreadsheet or text-delimited
+file in its original format. 
+
+** Notes
+
+- For spreadsheets formats such as xlsx and ods, because ~orgtbl-edit~ uses a
+  CSV file as an intermediate format, when saving, all formatting and formulas
+  will be lost.
+- ~orgtbl-edit~ can edit any spreadsheet file supported by ~org-odt-convert~
+  (typically any file supported by [[https://www.libreoffice.org/][LibreOffice]])

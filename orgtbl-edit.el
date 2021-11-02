@@ -1,4 +1,4 @@
-;;; orgtbl-edit.el --- Edit CSV and other delimited files as an Org table  -*- lexical-binding: t; -*-
+;;; orgtbl-edit.el --- Edit spreadsheet or text-delimited file as an Org table  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021 Shankar Rao
 
