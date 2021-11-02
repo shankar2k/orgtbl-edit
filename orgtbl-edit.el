@@ -65,6 +65,9 @@
 (defvar-local orgtbl-edit-is-spreadsheet-file nil
   "Non-nil if current file being edited by orgtbl-edit is a spreadsheet.")
 
+(defvar-local orgtbl-edit-temp-file ""
+  "Name of temporary CSV file to use when exporting table to a spreadsheet file.")
+
 
 ;;;; Functions
 
@@ -87,9 +90,9 @@ beginning of the buffer before detecting the field separator."
 
 This function is used by ``write-contents-functions''."
   (if-let* ((save-cmd  (pcase orgtbl-edit-separator
-                     ("\t" "orgtbl-to-tsv")
-                     (","  "orgtbl-to-csv")
-                     (" "  "orgtbl-to-generic")))
+                         ("\t" "orgtbl-to-tsv")
+                         (","  "orgtbl-to-csv")
+                         (" "  "orgtbl-to-generic")))
             (export-file (if orgtbl-edit-is-spreadsheet-file
                              orgtbl-edit-temp-file
                            orgtbl-edit-filename))
@@ -118,7 +121,7 @@ are exported back to FILENAME in its original format."
           (when (and is-spreadsheet
                      (not (yes-or-no-p (format "Warning: Editing %s as an Org table will destroy formatting and fomulas! Continue?"
                                                (file-name-nondirectory filename)))))
-            (throw 'dont-overwrite))
+            (throw 'dont-overwrite t))
           (set-buffer (get-buffer-create table-buffer-name))
           (orgtbl-mode +1)
           (setq truncate-lines t
