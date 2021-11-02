@@ -15,7 +15,7 @@ git clone https://github.com/shankar2k/orgtbl-edit.git
 To start using it, place it somewhere in your Emacs load-path and add the line
 
 #+begin_src emacs-lisp
-(require orgtbl-edit)
+(require 'orgtbl-edit)
 #+end_src
 
 in your ~.emacs.d/init.el~ file. Then run ~M-x orgtbl-edit~ to run it. 
