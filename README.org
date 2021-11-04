@@ -26,7 +26,7 @@ If you use ~use-package~, you can configure this as follows:
 (setq orgtbl-edit-load-path "<path to orgtbl-edit dir>")
 (use-package orgtbl-edit
   :load-path orgtbl-edit-load-path
-  :ensure nil
+  :ensure nil)
 #+end_src
 
 
