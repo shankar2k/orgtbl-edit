@@ -87,7 +87,7 @@ beginning of the buffer before detecting the field separator."
      ((not (re-search-forward "^[^\n\t]+$" nil t)) "\t")
      ((not (re-search-forward "^[^\n,]+$" nil t))  ",")
      (t " "))))
-  
+
 
 (defun orgtbl-edit-save-function ()
   "Save table back to the original spreadsheet or text-delimited file.
@@ -102,9 +102,9 @@ This function is used by ``write-contents-functions''."
                            orgtbl-edit-filename))
             (result (org-table-export export-file save-cmd))
             (ext orgtbl-edit-is-spreadsheet-file))
-        (org-odt-convert export-file (car ext))
-      result))
-      
+      (org-odt-convert export-file (car ext))
+    result))
+
 
 ;;;; Commands
 
@@ -124,10 +124,10 @@ are exported back to FILENAME in its original format."
                                       orgtbl-edit-spreadsheet-formats)))
           (when (and is-spreadsheet
                      (not (yes-or-no-p
-			   (format (concat "Warning: Editing %s as an Org table"
-					   " will destroy formatting and "
-					   "formulas! Continue?")
-				   (file-name-nondirectory filename)))))
+                           (format (concat "Warning: Editing %s as an Org table"
+                                           " will destroy formatting and "
+                                           "formulas! Continue?")
+                                   (file-name-nondirectory filename)))))
             (throw 'dont-overwrite t))
           (set-buffer (get-buffer-create table-buffer-name))
           (orgtbl-mode +1)
@@ -139,29 +139,29 @@ are exported back to FILENAME in its original format."
           ;; done in write-contents-functions, then after exporting the table,
           ;; emacs will try to save the buffer as an ordinary file.
           (add-hook 'after-save-hook #'(lambda () (set-buffer-modified-p nil))
-		    nil t)
+                    nil t)
           (if is-spreadsheet
               (let ((temp-filename (concat (file-name-sans-extension filename)
-					   ".csv")))
+                                           ".csv")))
                 (org-odt-convert filename "csv")
-		(unless (file-readable-p temp-filename)
-		  (kill-buffer table-buffer-name)
-		  (error (concat "Unable to convert %s to intermediate CSV "
-				 "format.\nPlease verify that %s%s is properly "
-				 "installed and its path is\n set correctly")
-			 (file-name-nondirectory filename)
-			 org-odt-convert-process
-			 (if (equal org-odt-convert-process "LibreOffice")
-			     " Calc" "")))
+                (unless (file-readable-p temp-filename)
+                  (kill-buffer table-buffer-name)
+                  (error (concat "Unable to convert %s to intermediate CSV "
+                                 "format.\nPlease verify that %s%s is properly "
+                                 "installed and its path is\n set correctly")
+                         (file-name-nondirectory filename)
+                         org-odt-convert-process
+                         (if (equal org-odt-convert-process "LibreOffice")
+                             " Calc" "")))
                 (insert-file-contents temp-filename)
                 (setq orgtbl-edit-temp-file temp-filename
                       orgtbl-edit-separator ","))
             (insert-file-contents filename)
             (setq orgtbl-edit-separator (orgtbl-edit-guess-separator)))
           (org-table-convert-region  (point-min) (point-max)
-				     orgtbl-edit-separator)
+                                     orgtbl-edit-separator)
           (set-buffer-modified-p nil)))
-        (switch-to-buffer table-buffer-name))))
+      (switch-to-buffer table-buffer-name))))
 
 ;;;; Footer
 
