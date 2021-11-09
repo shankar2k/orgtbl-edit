@@ -13,8 +13,8 @@
 
 ;; This package provides the function orgtbl-edit that opens a spreadsheet or
 ;; text-limited file is a special buffer where it can be edited as an Org
-;; table using orgtbl-mode. In particular, all org-table- and orgtbl- commands
-;; will work in the buffer. When the buffer is saved, the table is exported
+;; table using orgtbl-mode.  In particular, all org-table- and orgtbl- commands
+;; will work in the buffer.  When the buffer is saved, the table is exported
 ;; back to the original spreadsheet or text-delimited file in its original
 ;; format.
 ;;
@@ -45,7 +45,11 @@
 
 ;;;; Requirements
 
+(require 'pcase)
+(require 'subr-x)
 (require 'org-table)
+(require 'ox-odt)
+
 
 ;;;; Variables
 
@@ -110,7 +114,7 @@ This function is used by ``write-contents-functions''."
 
 The contents of FILENAME are displayed in a special buffer as an
 Org table, and all usual ``org-table-'' and ``orgtbl-'' commands
-will work in the buffer. When the buffer is saved, its contents
+will work in the buffer.  When the buffer is saved, its contents
 are exported back to FILENAME in its original format."
   (interactive "fSpreadsheet or CSV file: ")
   (let ((table-buffer-name (format "*orgtbl: %s*" filename)))
@@ -119,8 +123,11 @@ are exported back to FILENAME in its original format."
         (let ((is-spreadsheet (member (file-name-extension filename)
                                       orgtbl-edit-spreadsheet-formats)))
           (when (and is-spreadsheet
-                     (not (yes-or-no-p (format "Warning: Editing %s as an Org table will destroy formatting and fomulas! Continue?"
-                                               (file-name-nondirectory filename)))))
+                     (not (yes-or-no-p
+			   (format (concat "Warning: Editing %s as an Org table"
+					   " will destroy formatting and "
+					   "formulas! Continue?")
+				   (file-name-nondirectory filename)))))
             (throw 'dont-overwrite t))
           (set-buffer (get-buffer-create table-buffer-name))
           (orgtbl-mode +1)
@@ -131,16 +138,28 @@ are exported back to FILENAME in its original format."
           ;; Mark the buffer as unmodified after saving, because if this is
           ;; done in write-contents-functions, then after exporting the table,
           ;; emacs will try to save the buffer as an ordinary file.
-          (add-hook 'after-save-hook #'(lambda () (set-buffer-modified-p nil)) nil t)
+          (add-hook 'after-save-hook #'(lambda () (set-buffer-modified-p nil))
+		    nil t)
           (if is-spreadsheet
-              (let ((temp-filename (concat (file-name-sans-extension filename) ".csv")))
+              (let ((temp-filename (concat (file-name-sans-extension filename)
+					   ".csv")))
                 (org-odt-convert filename "csv")
+		(unless (file-readable-p temp-filename)
+		  (kill-buffer table-buffer-name)
+		  (error (concat "Unable to convert %s to intermediate CSV "
+				 "format.\nPlease verify that %s%s is properly "
+				 "installed and its path is\n set correctly")
+			 (file-name-nondirectory filename)
+			 org-odt-convert-process
+			 (if (equal org-odt-convert-process "LibreOffice")
+			     " Calc" "")))
                 (insert-file-contents temp-filename)
                 (setq orgtbl-edit-temp-file temp-filename
                       orgtbl-edit-separator ","))
             (insert-file-contents filename)
             (setq orgtbl-edit-separator (orgtbl-edit-guess-separator)))
-          (org-table-convert-region  (point-min) (point-max) orgtbl-edit-separator)
+          (org-table-convert-region  (point-min) (point-max)
+				     orgtbl-edit-separator)
           (set-buffer-modified-p nil)))
         (switch-to-buffer table-buffer-name))))
 
