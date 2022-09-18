@@ -1,10 +1,10 @@
 ;;; orgtbl-edit.el --- Edit spreadsheet or text-delimited file as an Org table  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021 Shankar Rao
+;; Copyright (C) 2022 Shankar Rao
 
 ;; Author: Shankar Rao <shankar.rao@gmail.com>
 ;; URL: https://github.com/~shankar2k/orgtbl-edit
-;; Version: 0.1
+;; Version: 0.2
 ;; Keywords: org, orgtbl, xls, ods, csv, tsv
 
 ;; This file is not part of GNU Emacs.
@@ -37,6 +37,10 @@
 
 ;;; History:
 
+;; Version 0.2 (2022-09-18):
+
+;; - Fixed bug with CSV files that have quoted fields with commas
+
 ;; Version 0.1 (2021-10-27):
 
 ;; - Initial version
@@ -60,8 +64,13 @@
 (defvar orgtbl-edit-header-lines 1
   "Number of header lines to skip when detecting field separator in ``orgtbl-edit''.")
 
-(defvar-local orgtbl-edit-separator ","
-  "Field separator between the columns. It can be a comma, tab, or space.")
+(defvar-local orgtbl-edit-separator '(4)
+  "Field separator between the columns.
+It can have the following values:
+
+(4)     Use the comma as a field separator
+(16)    Use a TAB as field separator
+\" \"   Use a space as field separator")
 
 (defvar-local orgtbl-edit-filename ""
   "Name of spreadsheet or text-delimited file to save this table to.")
@@ -84,8 +93,8 @@ beginning of the buffer before detecting the field separator."
     (goto-char (point-min))
     (forward-line orgtbl-edit-header-lines)
     (cond
-     ((not (re-search-forward "^[^\n\t]+$" nil t)) "\t")
-     ((not (re-search-forward "^[^\n,]+$" nil t))  ",")
+     ((not (re-search-forward "^[^\n\t]+$" nil t)) '(16))
+     ((not (re-search-forward "^[^\n,]+$" nil t))  '(4))
      (t " "))))
 
 
@@ -94,8 +103,8 @@ beginning of the buffer before detecting the field separator."
 
 This function is used by ``write-contents-functions''."
   (if-let* ((save-cmd  (pcase orgtbl-edit-separator
-                         ("\t" "orgtbl-to-tsv")
-                         (","  "orgtbl-to-csv")
+                         ('(16) "orgtbl-to-tsv")
+                         ('(4)  "orgtbl-to-csv")
                          (" "  "orgtbl-to-generic")))
             (export-file (if orgtbl-edit-is-spreadsheet-file
                              orgtbl-edit-temp-file
@@ -155,7 +164,7 @@ are exported back to FILENAME in its original format."
                              " Calc" "")))
                 (insert-file-contents temp-filename)
                 (setq orgtbl-edit-temp-file temp-filename
-                      orgtbl-edit-separator ","))
+                      orgtbl-edit-separator '(4)))
             (insert-file-contents filename)
             (setq orgtbl-edit-separator (orgtbl-edit-guess-separator)))
           (org-table-convert-region  (point-min) (point-max)
