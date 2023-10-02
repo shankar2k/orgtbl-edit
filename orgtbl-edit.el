@@ -3,9 +3,10 @@
 ;; Copyright (C) 2022 Shankar Rao
 
 ;; Author: Shankar Rao <shankar.rao@gmail.com>
-;; URL: https://github.com/~shankar2k/orgtbl-edit
+;; URL: https://github.com/shankar2k/orgtbl-edit
 ;; Version: 0.2
-;; Keywords: org, orgtbl, xls, ods, csv, tsv
+;; Package-Requires: ((emacs "26.1"))
+;; Keywords: convenience, data, wp, org, orgtbl, xls, ods, csv, tsv
 
 ;; This file is not part of GNU Emacs.
 
